@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 var bodyParser = require('body-parser');
 const database = require("./config/database");
 const app = express();
@@ -9,6 +10,10 @@ const port = process.env.PORT;
 const routesApiVer1 = require("./api/v1/routes/index.route");
 
 database.connect();
+
+app.use(cookieParser('kfkfjfjir'));
+
+
 
 
 // parse application/json
