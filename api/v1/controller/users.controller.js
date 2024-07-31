@@ -32,3 +32,36 @@ module.exports.register = async (req, res) => {
         )
     }
 }
+
+
+// [GET] /api/v1/users/login
+module.exports.login = async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const user = await User.findOne({
+        deleted : false,
+        email : email,
+        password : md5(password)
+    });
+
+    if(!user){
+        res.json(
+            {
+                code : 400,
+                message : "Email hoặc Password sai!",
+            }
+        )
+        return;
+    }
+
+    res.cookie.token = user.token;
+
+    res.json(
+        {
+            code : 200,
+            message : "Đăng nhập thành công!",
+            token : user.token
+        }
+    )
+}
