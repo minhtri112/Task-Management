@@ -23,7 +23,12 @@ module.exports.register = async (req, res) => {
         )
     }
     else{
-        const user = new User(req.body);
+        const user = new User({
+            email : req.body.email,
+            fullName : req.body.fullName,
+            password : req.body.password,
+            token : generate.generateRandomString(20)
+        });
         await user.save();
         res.cookie("token",user.token);
         res.json(
@@ -58,7 +63,7 @@ module.exports.login = async (req, res) => {
         return;
     }
 
-    res.cookie.token = user.token;
+    res.cookie("token",user.token);
 
     res.json(
         {
@@ -93,7 +98,7 @@ module.exports.forgotPassword = async (req, res) => {
     const objectForgotPassword = {
         email : email,
         otp : otp,
-        expireAt : Date() + timeExpire*60
+        expireAt : Date() + timeExpire*60*1000
     };
 
     const forgotPassword = new ForgotPassword(objectForgotPassword);
@@ -204,4 +209,31 @@ module.exports.resetPassword = async (req, res) => {
             message : "Cập nhật thành công!",
         }
     )
+}
+
+
+// [GET] /api/v1/users/detail
+module.exports.detail = async (req, res) => {
+    res.json(
+        {
+            code : 200,
+            message : "Thành công!",
+            data : req.user
+        }
+    )
+}
+
+// [GET] /api/v1/users/list
+module.exports.list = async (req, res) => {
+    const listUser = await User.findOne(
+        {
+            deleted : false,
+            _id : {$ne : req.user.id}
+        }
+    ).select("fullName token email");
+    res.json({
+        code : 200,
+        message : "Thành công",
+        data : listUser
+    })
 }
